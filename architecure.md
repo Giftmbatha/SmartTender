@@ -1,10 +1,10 @@
-## 🏗️ Project Architecture: Modular Monolith with Clean Architecture
+## Project Architecture: Modular Monolith with Clean Architecture
 
 This system is designed using a **Modular Monolithic Architecture** guided by **Clean Architecture** principles. This approach ensures high modularity, testability, and scalability while keeping the codebase manageable for a small team.
 
 ---
 
-### 📐 Visual Architecture Diagram
+###Visual Architecture Diagram
 
 ┌──────────────────────┐
 │     API Layer        │  ← FastAPI routers/controllers
@@ -15,7 +15,7 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 └──────────────────────┘
 
 
-### 🧱 Architecture Layers Explained
+###Architecture Layers Explained
 
 #### 1. **Presentation Layer**
 - Built with **FastAPI**
