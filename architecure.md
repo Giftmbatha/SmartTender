@@ -11,7 +11,7 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 ├──────────────────────┤
 │  Service Layer       │  ← Business logic, scoring, plan restrictions
 ├──────────────────────┤
-│  Data Access Layer   │  ← PostgreSQL, Redis, MongoDB adapters
+│  Data Access Layer   │  ← PostgreSQL, Redis
 └──────────────────────┘
 
 
