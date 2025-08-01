@@ -4,7 +4,7 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 
 ---
 
-###Visual Architecture Diagram
+**Visual Architecture Diagram**
 
 ┌──────────────────────┐
 │     API Layer        │  ← FastAPI routers/controllers
@@ -15,7 +15,7 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 └──────────────────────┘
 
 
-###Architecture Layers Explained
+**Architecture Layers Explained**
 
 #### 1. **Presentation Layer**
 - Built with **FastAPI**
