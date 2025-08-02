@@ -1,4 +1,3 @@
-# app/auth/repository.py
 from sqlalchemy.orm import Session
 from app.auth import models
 from app.common import utils
