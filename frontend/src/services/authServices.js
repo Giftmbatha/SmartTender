@@ -1,59 +1,25 @@
-// authServices.js
-import axios from "https://cdn.jsdelivr.net/npm/axios@1.6.8/+esm";
+// src/services/authServices.js
+import api from "./api";
 
-const API_BASE_URL = "http://localhost:8000"; // Dummy backend for now
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-export const getEnrichedReleases = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/api/enriched-releases`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching enriched releases:", error);
-    throw error;
-  }
+export const registerUser = async (data) => {
+  const response = await api.post("/register", data);
+  return response.data;
 };
 
-export const getSpendByBuyer = async () => {
-  try {
-    const response = await api.get("/api/analytics/spend-by-buyer");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching spend by buyer:", error);
-    throw error;
+export const loginUser = async (data) => {
+  const response = await api.post("/login", data);
+  if (response.data.access_token) {
+    localStorage.setItem("token", response.data.access_token);
   }
+  return response.data;
 };
 
-export const extractTenderSummary = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await api.post("/api/summary/extract", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error extracting summary:", error);
-    throw error;
-  }
+export const getCurrentUser = async () => {
+  const response = await api.get("/users/me");
+  return response.data;
 };
 
-export const checkReadiness = async (data) => {
-  try {
-    const response = await api.post("/api/readiness/check", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error checking readiness:", error);
-    throw error;
-  }
+export const logoutUser = () => {
+  localStorage.removeItem("token");
 };
+

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authService from "../services/authService";
+import {getCurrentUser} from "../services/authServices";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = authService.getCurrentUser();
+    const data = getCurrentUser.getCurrentUser();
     if (!data) {
       navigate("/login");
     } else {
