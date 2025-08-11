@@ -3,7 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../services/authServices";
 
 export default function Register() {
-  const [formData, setFormData] = useState({ full_name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ 
+    full_name: "", 
+    email: "", 
+    password: "", 
+    team_name: "" 
+  });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -22,28 +27,32 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 transform transition-transform duration-300 hover:scale-[1.01]">
-        <div className="text-center mb-8">
-          <Link to="/" className="text-4xl font-extrabold text-indigo-600 tracking-tight">SmartTender</Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Or
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500 ml-1">
-              sign in to your existing account
+    <div className="flex items-center justify-center min-h-screen p-6 bg-gray-900">
+      <div className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-10 transform transition-transform duration-300 hover:scale-[1.01]">
+        
+        {/* Header section with branding */}
+        <div className="mb-8 text-center">
+          <Link to="/" className="text-4xl font-extrabold tracking-tight text-white uppercase">SmartTender</Link>
+          <h2 className="mt-4 text-3xl font-extrabold text-white">Create your account</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Already a member?
+            <Link to="/login" className="ml-1 font-semibold text-indigo-400 transition-colors duration-300 hover:text-indigo-300">
+              Sign in here
             </Link>
           </p>
         </div>
 
+        {/* The registration form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
-              <span className="block sm:inline">{error}</span>
+            <div className="relative px-4 py-3 text-sm text-red-400 bg-red-900 border border-red-700 rounded-lg" role="alert">
+              <span className="block">{error}</span>
             </div>
           )}
 
+          {/* Full Name input */}
           <div>
-            <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">Full Name</label>
+            <label htmlFor="full_name" className="block text-sm font-medium text-gray-300">Full Name</label>
             <input
               id="full_name"
               name="full_name"
@@ -52,12 +61,28 @@ export default function Register() {
               onChange={handleChange}
               placeholder="Your full name"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-4 py-3 mt-1 text-white transition-colors duration-300 bg-gray-900 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
+          {/* Team Name input */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+            <label htmlFor="team_name" className="block text-sm font-medium text-gray-300">Team Name</label>
+            <input
+              id="team_name"
+              name="team_name"
+              type="text"
+              value={formData.team_name}
+              onChange={handleChange}
+              placeholder="Your team name"
+              required
+              className="block w-full px-4 py-3 mt-1 text-white transition-colors duration-300 bg-gray-900 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Email input */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email address</label>
             <input
               id="email"
               name="email"
@@ -66,12 +91,13 @@ export default function Register() {
               onChange={handleChange}
               placeholder="you@example.com"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-4 py-3 mt-1 text-white transition-colors duration-300 bg-gray-900 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
+          {/* Password input */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
             <input
               id="password"
               name="password"
@@ -80,15 +106,16 @@ export default function Register() {
               onChange={handleChange}
               placeholder="••••••••"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-4 py-3 mt-1 text-white transition-colors duration-300 bg-gray-900 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
+          {/* Submit button with gradient and hover effects */}
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
+            className="flex justify-center w-full px-4 py-3 text-lg font-bold text-white transition-all duration-500 transform rounded-lg shadow-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-2xl hover:from-indigo-500 hover:to-purple-500 hover:-translate-y-1"
           >
-            Create Account
+            Create Your Account
           </button>
         </form>
       </div>

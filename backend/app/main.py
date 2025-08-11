@@ -18,4 +18,4 @@ app.add_middleware(
 
 # Import your routers here
 from app.auth.routes import router as auth_router
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(auth_router,  tags=["Auth"])
