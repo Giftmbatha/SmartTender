@@ -38,6 +38,7 @@ class Plan(Base):
 
 # Pydantic schemas
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 class RegisterRequest(BaseModel):
     full_name: str
@@ -59,7 +60,29 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class UserInfo(BaseModel):
+    id: str
+    full_name: str
+    email: EmailStr
+    is_admin: bool
+    plan_name: Optional[str]
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserInfo
+    
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    plan_name: str
+    max_users: int
+    can_ai_summary: bool
+    can_readiness_check: bool
+    can_export: bool
+    weekly_search_limit: Optional[int]
+
+    class Config:
+        orm_mode = True
+
 

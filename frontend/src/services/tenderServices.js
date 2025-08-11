@@ -1,4 +1,3 @@
-// src/services/tenderServices.js
 import api from "./api";
 
 export const getEnrichedReleases = async () => {
