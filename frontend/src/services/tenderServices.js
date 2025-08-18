@@ -24,3 +24,17 @@ export const checkReadiness = async (data) => {
   const response = await api.post("/api/readiness/check", data);
   return response.data;
 };
+
+export const searchTenders = async (keyword, filters = {}) => {
+  try {
+    const { data } = await api.get("/tenders/search", {
+      params: { keyword, ...filters }
+    });
+
+    return data;
+    
+  } catch (error) {
+    console.error("Error searching tenders:", error);
+    throw error.response?.data?.message || "Didn't find any tender. Please try";
+  }
+};
