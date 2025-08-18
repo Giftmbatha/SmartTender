@@ -22,3 +22,19 @@ CREATE TABLE users (
     is_admin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE tender_search_cache (
+    id SERIAL PRIMARY KEY,
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    keyword VARCHAR(255) NOT NULL,
+    filters JSONB,  -- stores applied filters (province, deadline, etc.)
+    results JSONB,  -- cached tender results
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tender_search_logs (
+    id SERIAL PRIMARY KEY,
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    keyword VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
