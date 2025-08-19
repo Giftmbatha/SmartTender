@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { searchTenders } from "../tenderService";
+import { searchTenders } from "../services/tenderService";
 import TenderCard from "../components/Tender/TenderCard";
+import SearchBar from "../components/SearchBar";
+import FilterPanel from "../components/FilterPanel";
+import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function SearchTenders() {
   const [keyword, setKeyword] = useState("");
@@ -14,96 +18,62 @@ export default function SearchTenders() {
   const [tenders, setTenders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const tendersPerPage = 6;
 
   const handleSearch = async () => {
     setLoading(true);
     setErrorMsg("");
-    
     try {
       const results = await searchTenders(keyword, filters);
       setTenders(results);
+      setCurrentPage(1); // reset pagination after search
     } catch (err) {
-      setErrorMsg(err);
+      setErrorMsg(err.message || "Failed to fetch tenders.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Pagination logic
+  const indexOfLastTender = currentPage * tendersPerPage;
+  const indexOfFirstTender = indexOfLastTender - tendersPerPage;
+  const currentTenders = tenders.slice(indexOfFirstTender, indexOfLastTender);
+
   return (
     <div className="p-4">
-      {/* Search Input */}
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Search tenders..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="border p-2 rounded w-full"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Search
-        </button>
-      </div>
+      {/* Search Bar */}
+      <SearchBar keyword={keyword} setKeyword={setKeyword} onSearch={handleSearch} />
 
       {/* Filters */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        <input
-          placeholder="Province"
-          value={filters.province}
-          onChange={(e) => setFilters({ ...filters, province: e.target.value })}
-          className="border p-2 rounded"
-        />
-        <input
-          placeholder="Deadline (YYYY-MM-DD)"
-          value={filters.deadline}
-          onChange={(e) => setFilters({ ...filters, deadline: e.target.value })}
-          className="border p-2 rounded"
-        />
-        <input
-          placeholder="Buyer"
-          value={filters.buyer}
-          onChange={(e) => setFilters({ ...filters, buyer: e.target.value })}
-          className="border p-2 rounded"
-        />
-        <input
-          placeholder="Min Budget"
-          type="number"
-          value={filters.budgetMin}
-          onChange={(e) => setFilters({ ...filters, budgetMin: e.target.value })}
-          className="border p-2 rounded"
-        />
-        <input
-          placeholder="Max Budget"
-          type="number"
-          value={filters.budgetMax}
-          onChange={(e) => setFilters({ ...filters, budgetMax: e.target.value })}
-          className="border p-2 rounded"
-        />
-      </div>
+      <FilterPanel filters={filters} setFilters={setFilters} />
 
       {/* Error Message */}
       {errorMsg && (
-        <div className="bg-red-100 text-red-700 p-2 rounded mb-4">
-          {errorMsg}
-        </div>
+        <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{errorMsg}</div>
       )}
 
       {/* Loading Indicator */}
-      {loading && <p>Loading tenders...</p>}
+      {loading && <LoadingSpinner />}
 
       {/* Tender Cards */}
       <div className="grid gap-4">
-        {tenders.length > 0 ? (
-          tenders.map((tender) => (
-            <TenderCard key={tender.id} tender={tender} />
-          ))
+        {currentTenders.length > 0 ? (
+          currentTenders.map((tender) => <TenderCard key={tender.id} tender={tender} />)
         ) : (
           !loading && <p>No tenders found.</p>
         )}
       </div>
+
+      {/* Pagination */}
+      {tenders.length > tendersPerPage && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={tenders.length}
+          itemsPerPage={tendersPerPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }
