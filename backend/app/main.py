@@ -1,4 +1,3 @@
-# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,4 +17,7 @@ app.add_middleware(
 
 # Import your routers here
 from app.auth.routes import router as auth_router
+from app.tenders.routes import router as tenders_router
+
+app.include_router(tenders_router)
 app.include_router(auth_router,  tags=["Auth"])
