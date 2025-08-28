@@ -1,9 +1,20 @@
-from fastapi import HTTPException
+# app/auth/service.py
+from fastapi import HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from jose import JWTError, jwt
+import os
+
 from app.auth import repository
-from app.auth.models import RegisterRequest, UserResponse
+from app.auth.models import RegisterRequest, UserResponse, LoginRequest, TokenResponse, User, Plan
 from app.common import utils
-from app.auth.models import LoginRequest, TokenResponse
+from app.common.database import get_db
+
+# For JWT
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+ALGORITHM = "HS256"
+
 
 def register_user(request: RegisterRequest, db: Session) -> UserResponse:
     if repository.get_user_by_email(db, request.email):
@@ -29,6 +40,7 @@ def register_user(request: RegisterRequest, db: Session) -> UserResponse:
         is_admin=user.is_admin
     )
 
+
 def authenticate_user(request: LoginRequest, db: Session) -> TokenResponse:
     user = repository.get_user_by_email(db, request.email)
     if not user:
@@ -37,12 +49,12 @@ def authenticate_user(request: LoginRequest, db: Session) -> TokenResponse:
     if not utils.verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # Get the team's plan
+    # ✅ Correctly get the plan
     plan = None
     if user.team and user.team.plan_id:
-        plan = db.query(plan).filter(plan == user.team.plan_id).first()
+        plan = db.query(Plan).filter(Plan.id == user.team.plan_id).first()
 
-    # Create JWT
+    # ✅ Create JWT
     token = utils.create_access_token({"sub": str(user.id), "email": user.email})
 
     return TokenResponse(
@@ -54,3 +66,32 @@ def authenticate_user(request: LoginRequest, db: Session) -> TokenResponse:
         can_export=plan.can_export if plan else False,
         weekly_search_limit=plan.weekly_search_limit if plan else 0
     )
+
+
+# ✅ NEW: Get current user (for plan restrictions, protected routes, etc.)
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    """
+    Decode JWT token and return the current logged-in user.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise credentials_exception
+
+    return user
