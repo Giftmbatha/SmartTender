@@ -1,21 +1,14 @@
-import { Card, CardContent } from "@/components/ui/card";
+import TenderCard from "./TenderCard";
 
 export default function Results({ tenders }) {
-  if (!tenders.length) {
-    return <p className="text-center text-gray-500 mt-4">No results found</p>;
+  if (!tenders || tenders.length === 0) {
+    return <p className="text-gray-400">No tenders found.</p>;
   }
 
   return (
-    <div className="grid gap-4 p-4">
-      {tenders.map((tender, index) => (
-        <Card key={index} className="rounded-2xl shadow-md">
-          <CardContent className="p-4">
-            <h2 className="font-bold text-lg">{tender.title}</h2>
-            <p>Buyer: {tender.buyer}</p>
-            <p>Deadline: {tender.deadline}</p>
-            <p>Budget: R{tender.budget.toLocaleString()}</p>
-          </CardContent>
-        </Card>
+    <div className="grid grid-cols-1 gap-4">
+      {tenders.map((tender, idx) => (
+        <TenderCard key={idx} tender={tender} />
       ))}
     </div>
   );

@@ -25,16 +25,16 @@ export const checkReadiness = async (data) => {
   return response.data;
 };
 
-export const searchTenders = async (keyword, filters = {}) => {
-  try {
-    const { data } = await api.get("/tenders/search", {
-      params: { keyword, ...filters }
-    });
+export const searchTenders = async (filters) => {
+  const params = new URLSearchParams();
 
-    return data;
-    
-  } catch (error) {
-    console.error("Error searching tenders:", error);
-    throw error.response?.data?.message || "Didn't find any tender. Please try";
-  }
+  if (filters.keyword) params.append("keyword", filters.keyword);
+  if (filters.province) params.append("province", filters.province);
+  if (filters.submission_deadline) params.append("submission_deadline", filters.submission_deadline);
+  if (filters.buyer) params.append("buyer", filters.buyer);
+  if (filters.budget_min) params.append("budget_min", filters.budget_min);
+  if (filters.budget_max) params.append("budget_max", filters.budget_max);
+
+  const response = await api.get(`/api/search?${params.toString()}`);
+  return response.data;
 };
