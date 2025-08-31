@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
-import Login from './pages/Login.jsx'; // Corrected path
-import Register from './pages/Register.jsx'; // Corrected path
-import Dashboard from './pages/Dashboard.jsx'; // Corrected path
+import Login from './pages/Login.jsx'; 
+import Register from './pages/Register.jsx'; 
+import Dashboard from './pages/Dashboard.jsx'; 
 import Home from './pages/Home.jsx';
 import SearchTenders from "./pages/SearchTenders";
 
@@ -13,7 +13,7 @@ function App() {
       <Route path="/register" element={<Register/>} />
       <Route path="/login" element={<Login />}/>
       <Route path="/dashboard" element={<Dashboard/>} />
-      <Route path="/tenders/search" element={<SearchTenders />} /> 
+      <Route path="/search" element={<SearchTenders />} /> 
     </Routes>
   );
 }

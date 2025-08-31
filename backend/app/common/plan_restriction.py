@@ -9,7 +9,7 @@ from app.auth.models import Plan, User
 from app.tenders.models import TenderSearchCache
 
 # Config
-FREE_PLAN_LIMIT = 3  
+FREE_PLAN_LIMIT = 100  
 FREE_PLAN_WINDOW_DAYS = 7  # weekly limit
 
 

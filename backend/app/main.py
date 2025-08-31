@@ -19,5 +19,5 @@ app.add_middleware(
 from app.auth.routes import router as auth_router
 from app.tenders.routes import router as tenders_router
 
-app.include_router(tenders_router)
+app.include_router(tenders_router, prefix="/api", tags=["Tenders"])
 app.include_router(auth_router,  tags=["Auth"])

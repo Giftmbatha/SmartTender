@@ -9,7 +9,7 @@ import {
   Grid3X3,
   Layers,
 } from "lucide-react";
-import TenderSearch from "../components/Tender/TenderSearch";
+import SearchTenders from "../pages/SearchTenders";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -126,6 +126,15 @@ export default function Dashboard() {
                 more bids.
               </p>
               <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <li className="p-6 transition-all duration-300 transform bg-gray-900 shadow-md rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                  <Link
+                    to="/search"
+                    className="flex items-center gap-2 font-semibold text-green-400 transition-colors duration-300 hover:text-green-300"
+                  >
+                    <Settings className="w-5 h-5" />
+                    Search for Tenders
+                  </Link>
+                </li>
                 <li className="p-6 transition-all duration-300 transform bg-gray-900 shadow-md rounded-xl hover:shadow-2xl hover:-translate-y-1">
                   <Link
                     to="/user/plan"
@@ -156,10 +165,7 @@ export default function Dashboard() {
               </ul>
             </div>
 
-            {/* Tender Search embedded on dashboard */}
-            <div className="p-8 bg-gray-800 border border-gray-700 shadow-xl rounded-2xl">
-              <TenderSearch />
-            </div>
+            
           </div>
         )}
       </main>
