@@ -8,6 +8,7 @@ from app.common.database import get_db
 from app.auth.models import Plan, User
 from app.tenders.models import TenderSearchCache
 
+
 # Config
 FREE_PLAN_LIMIT = 3  
 FREE_PLAN_WINDOW_DAYS = 7  # weekly limit
@@ -62,12 +63,41 @@ def require_feature(feature_name: str):
         if not plan:
             raise HTTPException(status_code=403, detail="Plan not found.")
 
-        # Check if the feature exists on the plan and is enabled
-        if not getattr(plan, feature_name, False):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Your plan does not allow {feature_name.replace('_', ' ')}."
-            )
+        # ✅ NEW: feature map fallback for plans
+        # Useful if your Plan model does not have individual feature columns.
+        plan_features = {
+            "free": {
+                "can_ai_summary": False,
+                "can_export": False,
+                "can_match": False,
+            },
+            "basic": {
+                "can_ai_summary": True,
+                "can_export": False,
+                "can_match": True,
+            },
+            "pro": {
+                "can_ai_summary": True,
+                "can_export": True,
+                "can_match": True,
+            },
+        }
+
+        # If the plan has attributes (columns), check them first
+        if hasattr(plan, feature_name):
+            if not getattr(plan, feature_name, False):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Your plan does not allow {feature_name.replace('_', ' ')}."
+                )
+        else:
+            # Fallback to static feature map
+            plan_name = getattr(plan, "name", "").lower()
+            if plan_name not in plan_features or not plan_features[plan_name].get(feature_name, False):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Your plan does not allow {feature_name.replace('_', ' ')}."
+                )
 
         return True
 
