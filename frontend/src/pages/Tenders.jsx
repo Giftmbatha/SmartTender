@@ -51,7 +51,7 @@ export default function TendersPage() {
       <Filters onFilter={handleFilter} />
 
       {loading ? (
-        <p className="text-center text-blue-500 mt-4">Loading...</p>
+        <p className="mt-4 text-center text-blue-500">Loading...</p>
       ) : (
         <Results tenders={tenders} />
       )}

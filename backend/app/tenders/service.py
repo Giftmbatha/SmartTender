@@ -23,7 +23,7 @@ def fetch_tenders(
     """
     Fetch tender releases from the eTenders OCDS API with optional filters and pagination.
     """
-    endpoint = f"{BASE_URL}/OCDSReleases"
+    endpoint = f"{BASE_URL}/api/OCDSReleases"
     params = {"PageNumber": page, "PageSize": size}
 
     if keyword:
@@ -39,11 +39,25 @@ def fetch_tenders(
     if budget_max is not None:
         params["budgetMax"] = budget_max
 
-    response = requests.get(endpoint, params=params)
-    if not response.ok:
-        raise RuntimeError(f"Failed to fetch tenders: {response.status_code} {response.text}")
+    try:
+        response = requests.get(endpoint, params=params, timeout=10)
 
-    return response.json()
+        if response.status_code == 404:
+            return {"error": "No tenders found for the given criteria."}
+
+        if not response.ok:
+            return {"error": f"Failed to fetch tenders: {response.status_code}", "details": response.text}
+
+        return response.json()
+
+    except requests.exceptions.ConnectionError as e:
+        return {"error": "Could not connect to the eTenders API", "details": str(e)}
+
+    except requests.exceptions.Timeout:
+        return {"error": "The eTenders API took too long to respond. Please try again."}
+
+    except Exception as e:
+        return {"error": "An unexpected error occurred", "details": str(e)}
 
 
 def get_cached_results(db: Session, team_id: str, keyword: str, filters: dict):
