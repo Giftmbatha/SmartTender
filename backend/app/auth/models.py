@@ -13,6 +13,7 @@ class Team(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     users = relationship("User", back_populates="team")
+    plan = relationship("Plan")
 
 class User(Base):
     __tablename__ = "users"
@@ -25,6 +26,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     team = relationship("Team", back_populates="users")
+    companies = relationship("Company", back_populates="owner")
 
 class Plan(Base):
     __tablename__ = "plans"
