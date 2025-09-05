@@ -17,7 +17,6 @@
 | Refiloe Baloyi | 3 | 3 | 100% |
 
 ---
-
 ## Epic Achievements
 
 **This review covers the Epic 3 tasks:**  
