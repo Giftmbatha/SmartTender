@@ -1,33 +1,57 @@
 import React from "react";
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  // don’t render if only 1 page
-  if (totalPages <= 1) return null;
-
+// Enhanced Pagination component
+function Pagination({ currentPage, totalPages, onPageChange, colors }) {
+  const pages = [];
+  
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push(i);
+  }
+  
   return (
-    <div className="flex justify-center items-center gap-2 mt-6">
+    <div className="flex items-center justify-center mt-8 space-x-2">
       <button
-        className="px-3 py-1 border rounded disabled:opacity-50"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="p-2 rounded-lg disabled:opacity-50"
+        style={{ 
+          backgroundColor: currentPage === 1 ? 'transparent' : `${colors.secondaryBg}20`,
+          color: colors.primaryText,
+          border: `1px solid ${colors.secondaryBg}30`
+        }}
       >
-        Prev
+        Previous
       </button>
-
-      {/* Page numbers */}
-      <span className="px-4 py-1">
-        Page {currentPage} of {totalPages}
-      </span>
-
+      
+      {pages.map(page => (
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`w-10 h-10 rounded-lg ${currentPage === page ? 'font-bold' : ''}`}
+          style={{ 
+            backgroundColor: currentPage === page ? colors.secondaryBg : 'transparent',
+            color: currentPage === page ? colors.lightText : colors.primaryText,
+            border: `1px solid ${colors.secondaryBg}30`
+          }}
+        >
+          {page}
+        </button>
+      ))}
+      
       <button
-        className="px-3 py-1 border rounded disabled:opacity-50"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="p-2 rounded-lg disabled:opacity-50"
+        style={{ 
+          backgroundColor: currentPage === totalPages ? 'transparent' : `${colors.secondaryBg}20`,
+          color: colors.primaryText,
+          border: `1px solid ${colors.secondaryBg}30`
+        }}
       >
         Next
       </button>
     </div>
   );
-};
+}
 
 export default Pagination;

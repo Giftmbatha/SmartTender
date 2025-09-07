@@ -1,74 +1,74 @@
 # SmartTender
 
-## Code Review Feedback – Sprint 2 
+## Code Review Feedback – Epic 3
 
-**Sprint Duration**: Week 3 
-**Sprint Goal**:  Keyword Search, Filtering, and Match Ranking
+**Epic Duration**: Week 4  
+**Epic Goal**: Company Profile Management (Create, Update, Validate, Store)  
 **Team Size**: 5 members
 ---
 
 ### Team Performance
 | Team Member | Tasks Assigned | Tasks Completed | Completion % |
 |-------------|----------------|-----------------|--------------|
-| Gift Mbatha | 9 | 9 | 100% |
+| Gift Mbatha | 8 | 8 | 100% |
 | Nthabeleng Moleko | 6 | 6 | 100% |
 | Lentswe Kunene | 6 | 6 | 100% |
-| Monthati Gaosekwe | 7 | 7 | 100% |
+| Monthati Gaosekwe | 5 | 5 | 100% |
 | Refiloe Baloyi | 3 | 3 | 100% |
 
 ---
+## Epic Achievements
 
-## Sprint Achievements
-
-**This review covers the Sprint 2 tasks:**  
-- Backend: OCDS API integration, /api/search endpoint, filtering, caching.  
-- Frontend: Search bar, filter UI, tender results display, API integration.  
-⦁	Overall, great progress on connecting backend and frontend for tender search. Below are detailed notes.
-
+**This review covers the Epic 3 tasks:**  
+- Backend: `/api/companies` endpoint group, SQL database integration, Pydantic models, validation, plan restrictions.  
+- Frontend: Company profile form, update UI, API integration.  
+⦁ Overall, great progress on managing company profiles with proper validation and persistence. Below are detailed notes.
 
 **Primary Goals met:**
-- Backend endpoint /api/search implemented and returns clean JSON.  
-- Proper use of query parameters (province, deadline, buyer, budget).  
-- Good use of Axios in frontend to call the backend API.  
-- UI for search + filters is clean and intuitive.  
-- Results are displayed in a readable card format.  
+- Created `/api/companies` endpoints:  
+  - `POST /companies` → Create new company profile  
+  - `GET /companies/{id}` → Retrieve profile by ID  
+  - `PUT /companies/{id}` → Update profile  
+  - `DELETE /companies/{id}` → Delete profile  
+- Defined Pydantic models for requests and responses, enforcing field types and optional fields.  
+- Updated SQL database schema with a `companies` table and linked `user/team` via foreign key.  
+- Implemented plan restrictions (Free plan: only 1 company profile).  
+- Frontend form allows users to create and update profiles with validations.  
 
+---
 
 **What we can improve:**
 
-**⦁	 In backend :**
+**⦁ Backend**
 1. Validation
-   - Add Pydantic models for query parameters (e.g., enforce budget_min and budget_max to be integers).  
+   - Ensure strict validation of registration numbers, email format, and phone number patterns.  
 2. Error Handling
-   - If OCDS API is down or returns no results, return a JSON response like:  
-     json
-     { "error": "No tenders found", "status": 404 }
-       
-3. Caching
-   - Consider adding a caching mechanism (Redis/Mongo) for repeated searches instead of hitting OCDS API every time.  
-4. Testing
-   - Add unit tests for filter combinations (e.g., province + buyer, budget range).  
+   - Return friendly JSON error responses when validation fails or a profile is not found:  
+     ```json
+     { "error": "Company profile not found", "status": 404 }
+     ```
+3. Testing
+   - Add unit tests for create, update, delete, and get operations.  
+4. Plan Restrictions
+   - Enforce restrictions in middleware or service layer to avoid bypass.  
 
-
-**⦁	 In Frontend**
+**⦁ Frontend**
 1. Error States
-   - Display a friendly message when no results are found.  
-   - Show an error toast if API fails.  
+   - Display clear messages when validation fails or API returns an error.  
 2. Loading State
-   - Add a spinner or skeleton loader while fetching tenders.  
-3. Filter Validation
-   - Disable the "Search" button until at least one keyword is entered.  
-4. Pagination
-   - Implement pagination or infinite scroll if the results are too long.  
+   - Add spinner or skeleton loader when fetching or submitting company data.  
+3. Form Validation
+   - Disable "Save Profile" until all required fields are entered.  
 
-**⦁	 Next Steps:**
-- Refactor backend filters into service layer (not inside route).  
-- Add Redis caching for common searches.  
-- Implement loading + error handling states on frontend.  
-- Update API documentation (docs/api-contract.md) with examples of filtered queries.  
+**⦁ Next Steps:**
+- Refactor company profile logic into a dedicated service layer.  
+- Implement logging for backend operations.  
+- Add more frontend features like viewing all profiles for paid plans.  
+- Update API documentation (docs/api-contract.md) with request/response examples for company endpoints.  
 
+---
 
 **Review Decision**
 - Changes required before merge  
 - Looks good, minor fixes  
-- Approved for merge after improvements)
+- Approved for merge after improvements
