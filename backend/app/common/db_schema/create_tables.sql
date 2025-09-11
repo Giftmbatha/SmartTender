@@ -38,3 +38,10 @@ CREATE TABLE tender_search_logs (
     keyword VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE tender_summary_logs (
+    id SERIAL PRIMARY KEY,
+    team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+    tender_id UUID NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
