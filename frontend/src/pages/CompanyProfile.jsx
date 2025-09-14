@@ -83,20 +83,6 @@ const CompanyProfile = () => {
           <p className="text-lg" style={{ color: colors.secondaryBg }}>Manage your business profiles for tender applications</p>
         </div>
 
-        {/* Stats and Upgrade Banner for Free Plan */}
-        {plan === "Free" && (
-          <div className="p-6 mb-8 shadow-md rounded-2xl" style={{ backgroundColor: colors.secondaryBg, color: colors.lightText }}>
-            <div className="flex flex-col items-center justify-between md:flex-row">
-              <div>
-                <h3 className="mb-2 text-xl font-semibold">Free Plan Limitations</h3>
-                <p className="opacity-90">You can create up to 1 company profile. Upgrade to add more.</p>
-              </div>
-              <button className="flex items-center gap-2 px-6 py-3 mt-4 font-medium transition-transform rounded-full md:mt-0 hover:scale-105" style={{ backgroundColor: colors.primaryText }}>
-                Upgrade Plan <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Main Content */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -116,8 +102,8 @@ const CompanyProfile = () => {
                 <button
                   onClick={() => setEditing({})}
                   className="w-full p-6 mb-6 text-center transition-all border-2 border-dashed rounded-2xl hover:shadow-md"
-                  style={{ 
-                    borderColor: colors.secondaryBg, 
+                  style={{
+                    borderColor: colors.secondaryBg,
                     color: colors.secondaryBg,
                     backgroundColor: `${colors.secondaryBg}08`
                   }}
@@ -169,7 +155,7 @@ const CompanyProfile = () => {
             )}
           </div>
 
-          {/* Sidebar - Help & Tips */}
+          {/* Sidebar - Help & Tips and Upgrade Banner */}
           <div>
             <div className="sticky space-y-6 top-6">
               <div className="p-6 shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, border: `1px solid ${colors.secondaryBg}30` }}>
@@ -199,13 +185,18 @@ const CompanyProfile = () => {
                 </ul>
               </div>
 
+              {/* Stats and Upgrade Banner for Free Plan */}
               {plan === "Free" && (
-                <div className="p-6 text-center rounded-2xl" style={{ backgroundColor: colors.secondaryBg, color: colors.lightText }}>
-                  <h3 className="mb-2 font-semibold">Ready for more?</h3>
-                  <p className="mb-4 text-sm opacity-90">Upgrade to create multiple company profiles and access premium features.</p>
-                  <button className="px-4 py-2 text-sm font-medium rounded-full" style={{ backgroundColor: colors.primaryText }}>
-                    View Plans
-                  </button>
+                <div className="p-6 shadow-md rounded-2xl" style={{ backgroundColor: colors.secondaryBg, color: colors.lightText }}>
+                  <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                    <div>
+                      <h3 className="mb-2 text-xl font-semibold">Free Plan Limitations</h3>
+                      <p className="text-sm opacity-90">You can create up to 1 company profile. Upgrade to add more.</p>
+                    </div>
+                    <button className="flex items-center gap-2 px-6 py-3 font-medium transition-transform rounded-full hover:scale-105" style={{ backgroundColor: colors.primaryText, color: colors.lightText }}>
+                      Upgrade Plan <ArrowRight size={18} />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

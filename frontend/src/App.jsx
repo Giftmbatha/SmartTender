@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Home from "./pages/Home.jsx";
 import SearchTenders from "./pages/SearchTenders.jsx";
 import CompanyProfile from "./pages/CompanyProfile.jsx";
+import SummarizeTenders from "./pages/summerizeTenders.jsx";
 
 // PrivateRoute wrapper to protect routes
 const PrivateRoute = ({ children }) => {
@@ -42,6 +43,15 @@ function App() {
         element={
           <PrivateRoute>
             <CompanyProfile />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/summarize"
+        element={
+          <PrivateRoute>
+            <SummarizeTenders />
           </PrivateRoute>
         }
       />

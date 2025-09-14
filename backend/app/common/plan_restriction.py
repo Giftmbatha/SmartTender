@@ -1,74 +1,96 @@
 # app/common/plan_restriction.py
-from fastapi import Depends, HTTPException, status
+
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-
-from app.auth.service import get_current_user
 from app.common.database import get_db
-from app.auth.models import Plan, User
-from app.tenders.models import TenderSearchCache
-
-# Config
-FREE_PLAN_LIMIT = 100  
-FREE_PLAN_WINDOW_DAYS = 7  # weekly limit
+from app.common.utils import get_current_user
+from app.ai_summarization import models as summarization_models
+from app.tenders import models as tender_models
 
 
-def check_search_limit(db: Session, team_id: str) -> bool:
+from app.auth.models import Plan
+
+def require_feature(feature: str):
     """
-    Check if a team has exceeded their search limit based on plan.
-    Returns True if allowed, False otherwise.
-    """
-    from app.auth.models import Team  # lazy import to avoid circular import
-    team = db.query(Team).filter(Team.id == team_id).first()
-    if not team or not team.plan_id:
-        raise HTTPException(status_code=400, detail="Team or plan not found.")
-
-    plan = db.query(Plan).filter(Plan.id == team.plan_id).first()
-    if not plan:
-        raise HTTPException(status_code=400, detail="Plan not found.")
-
-    # Enforce free plan restrictions
-    if plan.name.lower() == "free":
-        cutoff = datetime.utcnow() - timedelta(days=FREE_PLAN_WINDOW_DAYS)
-        searches_count = (
-            db.query(TenderSearchCache)
-            .filter(
-                TenderSearchCache.team_id == team_id,
-                TenderSearchCache.created_at >= cutoff
-            )
-            .count()
-        )
-        if searches_count >= FREE_PLAN_LIMIT:
-            return False  # blocked
-
-    # Paid plans = no limit
-    return True
-
-
-def require_feature(feature_name: str):
-    """
-    Dependency generator to restrict route access
-    based on the user's subscription plan features.
-    Example: @router.get("/tenders/export", dependencies=[Depends(require_feature("can_export"))])
+    Returns a dependency that checks if the current user's team plan allows a feature.
+    Usage: Depends(require_feature("can_ai_summary"))
     """
     def dependency(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user=Depends(get_current_user),
     ):
-        if not current_user.team or not current_user.team.plan_id:
-            raise HTTPException(status_code=403, detail="No plan assigned to your team.")
+        team = current_user.team
+        if not team or not team.plan_id:
+            raise HTTPException(status_code=403, detail="No plan associated with team.")
 
-        plan = db.query(Plan).filter(Plan.id == current_user.team.plan_id).first()
-        if not plan:
-            raise HTTPException(status_code=403, detail="Plan not found.")
-
-        # Check if the feature exists on the plan and is enabled
-        if not getattr(plan, feature_name, False):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Your plan does not allow {feature_name.replace('_', ' ')}."
-            )
+        plan = db.query(Plan).filter(Plan.id == team.plan_id).first()
+        if not plan or not getattr(plan, feature, False):
+            raise HTTPException(status_code=403, detail=f"Feature '{feature}' not available in your plan.")
 
         return True
 
     return dependency
+
+def require_search_limit(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Restrict number of searches per week based on user's plan.
+    """
+    plan = current_user.team.plan if current_user.team else None
+    if not plan:
+        raise HTTPException(status_code=403, detail="No active plan associated with your team")
+
+    if plan.weekly_search_limit == 0:  # unlimited
+        return
+
+    one_week_ago = datetime.utcnow() - timedelta(days=7)
+    searches_count = (
+        db.query(tender_models.TenderSearchCache)
+        .filter(
+            tender_models.TenderSearchCache.user_id == current_user.id,
+            tender_models.TenderSearchCache.timestamp >= one_week_ago
+        )
+        .count()
+    )
+
+    if searches_count >= plan.weekly_search_limit:
+        raise HTTPException(status_code=403, detail="Weekly search limit reached")
+
+
+def require_ai_summary(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Restrict number of AI summaries per week based on user's plan.
+    """
+    plan = current_user.team.plan if current_user.team else None
+    if not plan:
+        raise HTTPException(status_code=403, detail="No active plan associated with your team")
+
+    # Free: 1 summary/week
+    # Basic: 5 summaries/week
+    # Pro: unlimited
+    if plan.summary_limit == 0:  # unlimited
+        return
+
+    one_week_ago = datetime.utcnow() - timedelta(days=7)
+    summary_count = (
+        db.query(summarization_models.SummaryUsage)
+        .filter(
+            summarization_models.SummaryUsage.user_id == current_user.id,
+            summarization_models.SummaryUsage.timestamp >= one_week_ago
+        )
+        .count()
+    )
+
+    if summary_count >= plan.summary_limit:
+        raise HTTPException(status_code=403, detail="Weekly summarization limit reached")
+
+    # log usage
+    usage = summarization_models.SummaryUsage(user_id=current_user.id)
+    db.add(usage)
+    db.commit()

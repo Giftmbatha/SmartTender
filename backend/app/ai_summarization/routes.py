@@ -1,36 +1,70 @@
-from fastapi import APIRouter, Depends
+import os
+import shutil
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.common.database import get_db
 from app.common.plan_restriction import require_feature
 
 router = APIRouter()
 
-@router.post("/summary/extract")
-def extract_summary(allowed=Depends(require_feature("can_ai_summary"))):
-    return {"message": "AI Summary generated successfully!"}
+# Directory to store uploads temporarily
+UPLOAD_DIR = "/tmp"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@router.post("/summarize")
-def summarize_tender(
-    tender_id: Optional[str] = None,
-    file: UploadFile = File(None),
+
+@router.post(
+    "/summarize",
+    dependencies=[Depends(lambda: require_feature("can_ai_summary"))]
+)
+async def summarize_tender(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
+    file: UploadFile = File(None),
+    tender_id: int = None
 ):
-    team_id = current_user.team_id
+    """
+    Summarize a tender document.
+    - Accepts uploaded file (PDF/Word)
+    - Or future: fetch tender by ID from DB
+    """
 
-    # ✅ Plan restriction check
-    if not can_summarize(db, team_id):
-        raise HTTPException(
-            status_code=403,
-            detail="Plan limit reached: upgrade your plan for more summaries."
-        )
+    try:
+        # Case 1: File uploaded
+        if file:
+            file_path = os.path.join(UPLOAD_DIR, file.filename)
 
-    # Extract text (from file or DB tender)
-    extracted_text, metadata = extract_tender_text(tender_id, file)
+            # Save file to disk
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
 
-    # AI Summarization
-    ai_summary = run_ai_summary(extracted_text)
+            # TODO: replace this with real extraction + AI summarization
+            extracted_text = f"Dummy extracted text from {file.filename}"
+            summary = f"Summary of {file.filename}"
+            deadlines = ["2025-10-01"]
+            budget = "R 500,000"
+            buyer = "Department of Works"
 
-    # ✅ Log usage
-    log_summary_usage(db, team_id, tender_id)
+            return {
+                "summary": summary,
+                "deadlines": deadlines,
+                "budget": budget,
+                "buyer": buyer
+            }
 
-    # ✅ Build response
-    return build_summary_response(extracted_text, ai_summary, metadata)
+        # Case 2: Tender ID provided (future enhancement)
+        if tender_id:
+            tender = db.query(Tender).filter(Tender.id == tender_id).first()
+            if not tender:
+                raise HTTPException(status_code=404, detail="Tender not found")
+
+            return {
+                "summary": f"Summary of tender {tender_id}",
+                "deadlines": ["2025-10-15"],
+                "budget": "R 1,200,000",
+                "buyer": tender.buyer
+            }
+
+        raise HTTPException(status_code=400, detail="No file or tender_id provided")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

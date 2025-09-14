@@ -1,49 +1,47 @@
-from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
-from app.company_profiles.models import Team, Plan
-from app.ai_summarization.models import TenderSummaryLog
-
-PLAN_LIMITS = {
-    "free": 1,
-    "basic": 5,
-    "pro": None  # unlimited
-}
-
-def can_summarize(db: Session, team_id: str) -> bool:
-    team = db.query(Team).filter(Team.id == team_id).first()
-    plan = db.query(Plan).filter(Plan.id == team.plan_id).first()
-
-    cutoff = datetime.utcnow() - timedelta(days=7)
-
-    summaries_count = (
-        db.query(TenderSummaryLog)
-        .filter(TenderSummaryLog.team_id == team_id,
-                TenderSummaryLog.created_at >= cutoff)
-        .count()
-    )
-
-    limit = PLAN_LIMITS.get(plan.name.lower())
-    if limit is None:
-        return True  # Pro plan = unlimited
-
-    return summaries_count < limit
+import fitz  # PyMuPDF
+import docx
+from fastapi import UploadFile
 
 
-def log_summary_usage(db: Session, team_id: str, tender_id: str = None):
-    log = TenderSummaryLog(team_id=team_id, tender_id=tender_id)
-    db.add(log)
-    db.commit()
-    return log
+def extract_text_from_pdf(file_path: str) -> str:
+    text = ""
+    with fitz.open(file_path) as doc:
+        for page in doc:
+            text += page.get_text("text")
+    return text
 
 
-def build_summary_response(extracted_text: str, ai_summary: str, metadata: dict):
+def extract_text_from_docx(file_path: str) -> str:
+    doc = docx.Document(file_path)
+    return "\n".join([para.text for para in doc.paragraphs])
+
+
+def extract_text(file: UploadFile, file_path: str) -> str:
+    """Save uploaded file and extract text"""
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+
+    if file.filename.endswith(".pdf"):
+        return extract_text_from_pdf(file_path)
+    elif file.filename.endswith(".docx"):
+        return extract_text_from_docx(file_path)
+    else:
+        raise ValueError("Unsupported file type")
+
+
+def analyze_tender_text(text: str) -> dict:
     """
-    metadata should include buyer, deadlines, budget, etc.
+    Basic extractor (replace with AI later).
     """
+    summary = text[:500] + "..." if len(text) > 500 else text
+
+    deadlines = [line for line in text.split("\n") if "deadline" in line.lower()]
+    budget = [line for line in text.split("\n") if "budget" in line.lower() or "amount" in line.lower()]
+    buyer = [line for line in text.split("\n") if "buyer" in line.lower() or "department" in line.lower()]
 
     return {
-        "summary": ai_summary,
-        "key_deadlines": metadata.get("deadlines", []),
-        "budget_highlights": metadata.get("budget", None),
-        "buyer_details": metadata.get("buyer", None),
+        "summary": summary.strip(),
+        "key_deadlines": deadlines[:3],
+        "budget_highlights": budget[:3],
+        "buyer_details": buyer[:3],
     }
