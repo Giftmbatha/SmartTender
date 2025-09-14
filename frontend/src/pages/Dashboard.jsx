@@ -16,20 +16,15 @@ import {
   BarChart3,
   Bell,
   HelpCircle,
-  ChevronDown,
+  ChevronLeft,
   ChevronRight,
-  Sparkles,
   Shield,
   Users,
-  Calendar,
   Award,
   Clock,
   CheckCircle,
   Star,
-  Sprout,
-  LeafyGreen,
-  Tractor,
-  Handshake
+  Sprout
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -38,8 +33,8 @@ export default function Dashboard() {
   const [user, setUser] = useState({});
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Define the color palette from the home page
   const colors = {
     primaryBg: '#FAF7F3',
     primaryText: '#2D4F2B',
@@ -49,17 +44,45 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedRole = localStorage.getItem("role");
-    const savedUser = localStorage.getItem("user");
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      const savedRole = localStorage.getItem("role");
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-    if (savedRole) setRole(savedRole);
-    if (savedUser) setUser(JSON.parse(savedUser));
+      if (savedRole) {
+        setRole(savedRole);
+      }
+      
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        } else {
+          // If the user isn't found, log them out.
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          localStorage.removeItem("user");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+        // Fallback to local storage if API call fails
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        } else {
+           navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -69,7 +92,6 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  // Stats data for demonstration
   const userStats = [
     { label: "Tenders Viewed", value: "24", icon: <FileText className="w-5 h-5" />, change: "+12%", positive: true },
     { label: "Applications", value: "8", icon: <CheckCircle className="w-5 h-5" />, change: "+5%", positive: true },
@@ -91,6 +113,14 @@ export default function Dashboard() {
     { action: "Downloaded tender documents", entity: "Educational Facilities", time: "2 days ago" }
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen font-sans" style={{ backgroundColor: colors.primaryBg, color: colors.primaryText }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen font-sans" style={{ backgroundColor: colors.primaryBg }}>
       {/* Sidebar */}
@@ -106,19 +136,19 @@ export default function Dashboard() {
               <LayoutDashboard className="h-7 w-7" style={{ color: colors.lightText }} />
             </Link>
           )}
-          <button 
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-1 rounded hover:bg-opacity-20" style={{ backgroundColor: 'rgba(250, 247, 243, 0.1)' }}
           >
-            {sidebarOpen ? <ChevronRight size={20} style={{ color: colors.lightText }} /> : <ChevronDown size={20} style={{ color: colors.lightText }} />}
+            {sidebarOpen ? <ChevronLeft size={20} style={{ color: colors.lightText }} /> : <ChevronRight size={20} style={{ color: colors.lightText }} />}
           </button>
         </div>
         
         <nav className="flex-1 mt-6">
           <ul className="px-3 space-y-1">
             <li>
-              <Link 
-                to="/dashboard" 
+              <Link
+                to="/dashboard"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-opacity-20' : 'hover:bg-opacity-10'}`}
                 style={{ backgroundColor: activeTab === 'dashboard' ? 'rgba(250, 247, 243, 0.2)' : 'transparent' }}
                 onClick={() => setActiveTab('dashboard')}
@@ -128,8 +158,8 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link 
-                to="/search" 
+              <Link
+                to="/search"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'search' ? 'bg-opacity-20' : 'hover:bg-opacity-10'}`}
                 style={{ backgroundColor: activeTab === 'search' ? 'rgba(250, 247, 243, 0.2)' : 'transparent' }}
                 onClick={() => setActiveTab('search')}
@@ -139,8 +169,8 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link 
-                to="/companies" 
+              <Link
+                to="/companies"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'companies' ? 'bg-opacity-20' : 'hover:bg-opacity-10'}`}
                 style={{ backgroundColor: activeTab === 'companies' ? 'rgba(250, 247, 243, 0.2)' : 'transparent' }}
                 onClick={() => setActiveTab('companies')}
@@ -150,8 +180,8 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link 
-                to="/user/summaries" 
+              <Link
+                to="/summarize"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'summaries' ? 'bg-opacity-20' : 'hover:bg-opacity-10'}`}
                 style={{ backgroundColor: activeTab === 'summaries' ? 'rgba(250, 247, 243, 0.2)' : 'transparent' }}
                 onClick={() => setActiveTab('summaries')}
@@ -161,8 +191,8 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link 
-                to="/user/readiness" 
+              <Link
+                to="/user/readiness"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'readiness' ? 'bg-opacity-20' : 'hover:bg-opacity-10'}`}
                 style={{ backgroundColor: activeTab === 'readiness' ? 'rgba(250, 247, 243, 0.2)' : 'transparent' }}
                 onClick={() => setActiveTab('readiness')}
@@ -178,8 +208,8 @@ export default function Dashboard() {
               <h3 className="px-4 text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(250, 247, 243, 0.7)' }}>Admin</h3>
               <ul className="mt-2 space-y-1">
                 <li>
-                  <Link 
-                    to="/admin/teams" 
+                  <Link
+                    to="/admin/teams"
                     className="flex items-center gap-3 px-4 py-3 transition-colors rounded-lg hover:bg-opacity-10"
                     style={{ backgroundColor: 'transparent' }}
                   >
@@ -188,8 +218,8 @@ export default function Dashboard() {
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/admin/plans" 
+                  <Link
+                    to="/admin/plans"
                     className="flex items-center gap-3 px-4 py-3 transition-colors rounded-lg hover:bg-opacity-10"
                     style={{ backgroundColor: 'transparent' }}
                   >
@@ -198,8 +228,8 @@ export default function Dashboard() {
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/admin/users" 
+                  <Link
+                    to="/admin/users"
                     className="flex items-center gap-3 px-4 py-3 transition-colors rounded-lg hover:bg-opacity-10"
                     style={{ backgroundColor: 'transparent' }}
                   >
@@ -261,267 +291,217 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="flex-1 p-6 overflow-y-auto" style={{ backgroundColor: colors.primaryBg }}>
           {/* Welcome Banner */}
-          <div className="p-6 mb-8 shadow-lg rounded-2xl" style={{ backgroundColor: colors.secondaryBg, color: colors.lightText }}>
+          <div className="p-4 mb-8 shadow-lg rounded-xl" style={{ backgroundColor: colors.secondaryBg, color: colors.lightText }}>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="mb-2 text-2xl font-bold">Welcome back, {user.full_name || "User"}! 👋</h2>
-                <p className="max-w-2xl opacity-90">
-                  {role === "admin" 
-                    ? "Here's what's happening with your platform today." 
+                <h2 className="mb-2 text-xl font-bold">Welcome back, {user.full_name || "User"}! 👋</h2>
+                <p className="max-w-2xl text-sm opacity-90">
+                  {role === "admin"
+                    ? "Here's what's happening with your platform today."
                     : "Ready to find your next business opportunity? Check out the latest tenders matching your profile."}
                 </p>
               </div>
               <div className="hidden md:block">
-                <Sprout className="w-16 h-16 opacity-30" style={{ color: colors.lightText }} />
+                <Sprout className="w-12 h-12 opacity-30" style={{ color: colors.lightText }} />
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+          {/* New Grid Layout for all content */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            
+            {/* Stats Grid - Fills top row */}
             {(role === "admin" ? adminStats : userStats).map((stat, index) => (
-              <div key={index} className="p-6 transition-shadow border shadow-sm rounded-2xl hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg, color: colors.primaryText }}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+              <div key={index} className="p-6 transition-shadow border shadow-sm rounded-xl hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg, color: colors.primaryText }}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
                     {React.cloneElement(stat.icon, { style: { color: colors.secondaryBg } })}
                   </div>
-                  <span className={`text-sm font-medium ${stat.positive ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-xs font-medium ${stat.positive ? 'text-green-600' : 'text-red-600'}`}>
                     {stat.change}
                   </span>
                 </div>
-                <h3 className="mb-1 text-2xl font-bold" style={{ color: colors.primaryText }}>{stat.value}</h3>
-                <p className="text-sm" style={{ color: colors.secondaryBg }}>{stat.label}</p>
+                <h3 className="mb-1 text-xl font-bold" style={{ color: colors.primaryText }}>{stat.value}</h3>
+                <p className="text-xs" style={{ color: colors.secondaryBg }}>{stat.label}</p>
               </div>
             ))}
-          </div>
 
-          {role === "admin" ? (
-            /* Admin Dashboard */
-            <div className="space-y-6">
-              <div className="overflow-hidden border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                <div className="px-6 py-5 border-b" style={{ borderColor: colors.secondaryBg }}>
-                  <h2 className="flex items-center gap-3 text-xl font-semibold" style={{ color: colors.primaryText }}>
-                    <Briefcase className="w-6 h-6" style={{ color: colors.secondaryBg }} />
-                    Admin Tools
-                  </h2>
-                  <p className="mt-1" style={{ color: colors.secondaryBg }}>
-                    Manage users, plans, and teams across the entire SmartTender platform.
-                  </p>
-                </div>
-                
-                <div className="p-6">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <Link
-                      to="/admin/teams"
-                      className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                      style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
+            {role === "admin" ? (
+              <>
+                {/* Admin Tools Card - Spans two columns */}
+                <div className="overflow-hidden border shadow-sm lg:col-span-2 rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <div className="px-6 py-4 border-b" style={{ borderColor: colors.secondaryBg }}>
+                    <h2 className="flex items-center gap-3 text-lg font-semibold" style={{ color: colors.primaryText }}>
+                      <Briefcase className="w-5 h-5" style={{ color: colors.secondaryBg }} />
+                      Admin Tools
+                    </h2>
+                    <p className="mt-1 text-sm" style={{ color: colors.secondaryBg }}>
+                      Manage users, plans, and teams across the entire SmartTender platform.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-3">
+                    <Link to="/admin/teams" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
                         <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                          <Grid3X3 className="w-5 h-5" style={{ color: colors.secondaryBg }} />
+                          <Grid3X3 className="w-4 h-4" style={{ color: colors.secondaryBg }} />
                         </div>
-                        <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Manage Teams</h3>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Manage Teams</h3>
                       </div>
-                      <p className="text-sm" style={{ color: colors.secondaryBg }}>View and manage all teams in the system.</p>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>View and manage all teams in the system.</p>
                     </Link>
-                    
-                    <Link
-                      to="/admin/plans"
-                      className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                      style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
+                    <Link to="/admin/plans" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
                         <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                          <Layers className="w-5 h-5" style={{ color: colors.secondaryBg }} />
+                          <Layers className="w-4 h-4" style={{ color: colors.secondaryBg }} />
                         </div>
-                        <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Manage Plans</h3>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Manage Plans</h3>
                       </div>
-                      <p className="text-sm" style={{ color: colors.secondaryBg }}>Configure subscription plans and features.</p>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>Configure subscription plans and features.</p>
                     </Link>
-                    
-                    <Link
-                      to="/admin/users"
-                      className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                      style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
+                    <Link to="/admin/users" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
                         <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                          <User className="w-5 h-5" style={{ color: colors.secondaryBg }} />
+                          <User className="w-4 h-4" style={{ color: colors.secondaryBg }} />
                         </div>
-                        <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>View All Users</h3>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>View All Users</h3>
                       </div>
-                      <p className="text-sm" style={{ color: colors.secondaryBg }}>Manage user accounts and permissions.</p>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>Manage user accounts and permissions.</p>
                     </Link>
                   </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div className="p-6 border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                  <h3 className="mb-4 text-lg font-semibold" style={{ color: colors.primaryText }}>Recent Activity</h3>
-                  <div className="space-y-4">
+
+                {/* Quick Actions Card */}
+                <div className="p-6 border shadow-sm rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <h3 className="mb-3 text-base font-semibold" style={{ color: colors.primaryText }}>Quick Actions</h3>
+                  <div className="space-y-3">
+                    <button className="flex items-center w-full gap-2 p-3 text-left transition-all border rounded-lg hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <BarChart3 className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Generate Reports</span>
+                    </button>
+                    <button className="flex items-center w-full gap-2 p-3 text-left transition-all border rounded-lg hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <Settings className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>System Settings</span>
+                    </button>
+                    <button className="flex items-center w-full gap-2 p-3 text-left transition-all border rounded-lg hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <Users className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>User Management</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Recent Activity Card */}
+                <div className="p-6 border shadow-sm rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <h3 className="mb-3 text-base font-semibold" style={{ color: colors.primaryText }}>Recent Activity</h3>
+                  <div className="space-y-3">
                     {recentActivities.map((activity, index) => (
                       <div key={index} className="flex items-start gap-3">
-                        <div className="p-2 mt-1 rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                          <Clock className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                        <div className="p-1 mt-1 rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+                          <Clock className="w-3 h-3" style={{ color: colors.secondaryBg }} />
                         </div>
                         <div>
                           <p className="text-sm font-medium" style={{ color: colors.primaryText }}>{activity.action}</p>
-                          {activity.entity && <p className="text-sm" style={{ color: colors.secondaryBg }}>{activity.entity}</p>}
+                          {activity.entity && <p className="text-xs" style={{ color: colors.secondaryBg }}>{activity.entity}</p>}
                           <p className="text-xs" style={{ color: colors.secondaryBg }}>{activity.time}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                
-                <div className="p-6 border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                  <h3 className="mb-4 text-lg font-semibold" style={{ color: colors.primaryText }}>Quick Actions</h3>
-                  <div className="space-y-3">
-                    <button className="flex items-center w-full gap-3 p-3 text-left transition-all border rounded-xl hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                      <BarChart3 className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Generate Reports</span>
-                    </button>
-                    <button className="flex items-center w-full gap-3 p-3 text-left transition-all border rounded-xl hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                      <Settings className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>System Settings</span>
-                    </button>
-                    <button className="flex items-center w-full gap-3 p-3 text-left transition-all border rounded-xl hover:shadow-sm" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                      <Users className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                      <span className="text-sm font-medium" style={{ color: colors.primaryText }}>User Management</span>
-                    </button>
+              </>
+            ) : (
+              <>
+                {/* User Quick Access Card - Spans two columns */}
+                <div className="p-6 overflow-hidden border shadow-sm lg:col-span-2 rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <div className="px-6 py-4 border-b" style={{ borderColor: colors.secondaryBg }}>
+                    <h2 className="flex items-center gap-3 text-lg font-semibold" style={{ color: colors.primaryText }}>
+                      <Briefcase className="w-5 h-5" style={{ color: colors.secondaryBg }} />
+                      Quick Access
+                    </h2>
+                    <p className="mt-1 text-sm" style={{ color: colors.secondaryBg }}>
+                      Jump into your most common tasks.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-3">
+                    <Link to="/search" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+                          <Search className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                        </div>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Search Tenders</h3>
+                      </div>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>Find new opportunities tailored to you.</p>
+                    </Link>
+                    <Link to="/summarize" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+                          <FileText className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                        </div>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Tender Summaries</h3>
+                      </div>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>View AI-powered summaries of tender documents.</p>
+                    </Link>
+                    <Link to="/user/readiness" className="p-4 transition-all border rounded-lg group hover:shadow-md" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+                          <Target className="w-4 h-4" style={{ color: colors.secondaryBg }} />
+                        </div>
+                        <h3 className="text-sm font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Check Readiness</h3>
+                      </div>
+                      <p className="text-xs" style={{ color: colors.secondaryBg }}>Assess your company's readiness for upcoming tenders.</p>
+                    </Link>
                   </div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            /* User Dashboard */
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2">
-                  <div className="overflow-hidden border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                    <div className="px-6 py-5 border-b" style={{ borderColor: colors.secondaryBg }}>
-                      <h2 className="flex items-center gap-3 text-xl font-semibold" style={{ color: colors.primaryText }}>
-                        <User className="w-6 h-6" style={{ color: colors.secondaryBg }} />
-                        Quick Access
-                      </h2>
-                      <p className="mt-1" style={{ color: colors.secondaryBg }}>
-                        Access your tools to streamline your tendering process and win more bids.
-                      </p>
+
+                {/* Recent Activity Card */}
+                <div className="p-6 border shadow-sm rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <h3 className="mb-3 text-base font-semibold" style={{ color: colors.primaryText }}>Recent Activity</h3>
+                  <div className="space-y-3">
+                    {recentActivities.map((activity, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="p-1 mt-1 rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
+                          <Clock className="w-3 h-3" style={{ color: colors.secondaryBg }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium" style={{ color: colors.primaryText }}>{activity.action}</p>
+                          {activity.entity && <p className="text-xs" style={{ color: colors.secondaryBg }}>{activity.entity}</p>}
+                          <p className="text-xs" style={{ color: colors.secondaryBg }}>{activity.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recommended Tenders Card */}
+                <div className="p-6 border shadow-sm rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                  <h3 className="mb-3 text-base font-semibold" style={{ color: colors.primaryText }}>Recommended Tenders</h3>
+                  <div className="space-y-3">
+                    <div className="p-4 border rounded-xl" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)', borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Infrastructure Project</span>
+                      </div>
+                      <p className="mb-2 text-xs" style={{ color: colors.secondaryBg }}>Closing in 5 days</p>
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-1 text-xs rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.2)', color: colors.primaryText }}>High Match</span>
+                        <button className="text-xs font-medium hover:underline" style={{ color: colors.secondaryBg }}>View →</button>
+                      </div>
                     </div>
                     
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <Link
-                          to="/search"
-                          className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                          style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                              <Search className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                            </div>
-                            <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Search for Tenders</h3>
-                          </div>
-                          <p className="text-sm" style={{ color: colors.secondaryBg }}>Find new opportunities matching your business.</p>
-                        </Link>
-                        
-                        <Link
-                          to="/companies"
-                          className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                          style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                              <Building className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                            </div>
-                            <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>View My Company</h3>
-                          </div>
-                          <p className="text-sm" style={{ color: colors.secondaryBg }}>Manage your company profile and details.</p>
-                        </Link>
-                        
-                        <Link
-                          to="/user/summaries"
-                          className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                          style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                              <FileText className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                            </div>
-                            <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Tender Summaries</h3>
-                          </div>
-                          <p className="text-sm" style={{ color: colors.secondaryBg }}>View and manage your tender applications.</p>
-                        </Link>
-                        
-                        <Link
-                          to="/user/readiness"
-                          className="p-5 transition-all border group rounded-xl hover:shadow-md"
-                          style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 transition-colors rounded-lg group-hover:bg-opacity-20" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                              <Target className="w-5 h-5" style={{ color: colors.secondaryBg }} />
-                            </div>
-                            <h3 className="font-semibold transition-colors group-hover:text-opacity-80" style={{ color: colors.primaryText }}>Check Readiness</h3>
-                          </div>
-                          <p className="text-sm" style={{ color: colors.secondaryBg }}>Evaluate your preparedness for new tenders.</p>
-                        </Link>
+                    <div className="p-4 border rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Healthcare System Upgrade</span>
+                      </div>
+                      <p className="mb-2 text-xs" style={{ color: colors.secondaryBg }}>Closing in 12 days</p>
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-1 text-xs rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.2)', color: colors.primaryText }}>Medium Match</span>
+                        <button className="text-xs font-medium hover:underline" style={{ color: colors.secondaryBg }}>View →</button>
                       </div>
                     </div>
                   </div>
                 </div>
-                
-                <div className="space-y-6">
-                  <div className="p-6 border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                    <h3 className="mb-4 text-lg font-semibold" style={{ color: colors.primaryText }}>Recent Activity</h3>
-                    <div className="space-y-4">
-                      {recentActivities.map((activity, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className="p-2 mt-1 rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)' }}>
-                            <Clock className="w-4 h-4" style={{ color: colors.secondaryBg }} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium" style={{ color: colors.primaryText }}>{activity.action}</p>
-                            {activity.entity && <p className="text-sm" style={{ color: colors.secondaryBg }}>{activity.entity}</p>}
-                            <p className="text-xs" style={{ color: colors.secondaryBg }}>{activity.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 border shadow-sm rounded-2xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                    <h3 className="mb-4 text-lg font-semibold" style={{ color: colors.primaryText }}>Recommended Tenders</h3>
-                    <div className="space-y-3">
-                      <div className="p-3 border rounded-xl" style={{ backgroundColor: 'rgba(112, 138, 88, 0.1)', borderColor: colors.secondaryBg }}>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Infrastructure Project</span>
-                        </div>
-                        <p className="mb-2 text-xs" style={{ color: colors.secondaryBg }}>Closing in 5 days</p>
-                        <div className="flex items-center justify-between">
-                          <span className="px-2 py-1 text-xs rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.2)', color: colors.primaryText }}>High Match</span>
-                          <button className="text-xs font-medium hover:underline" style={{ color: colors.secondaryBg }}>View →</button>
-                        </div>
-                      </div>
-                      
-                      <div className="p-3 border rounded-xl" style={{ backgroundColor: colors.primaryBg, borderColor: colors.secondaryBg }}>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium" style={{ color: colors.primaryText }}>Healthcare System Upgrade</span>
-                        </div>
-                        <p className="mb-2 text-xs" style={{ color: colors.secondaryBg }}>Closing in 12 days</p>
-                        <div className="flex items-center justify-between">
-                          <span className="px-2 py-1 text-xs rounded-full" style={{ backgroundColor: 'rgba(112, 138, 88, 0.2)', color: colors.primaryText }}>Medium Match</span>
-                          <button className="text-xs font-medium hover:underline" style={{ color: colors.secondaryBg }}>View →</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </main>
       </div>
     </div>

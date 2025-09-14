@@ -3,7 +3,7 @@ uvicorn[standard]==0.29.0
 
 # Database
 sqlalchemy==2.0.30
-asyncpg==0.29.0              # PostgreSQL driver
+#asyncpg==0.29.0              # PostgreSQL driver
 psycopg2-binary==2.9.9       # Optional if you use psycopg2
 
 # AI & NLP
@@ -12,7 +12,7 @@ torch==2.3.0                 # For PyTorch-based models
 pymupdf==1.24.2              # PDF text extraction
 
 # NoSQL
-pymongo==4.7.1               # MongoDB client
+#pymongo==4.7.1               # MongoDB client
 redis==5.0.4                 # Redis client
 
 # Security & Auth
@@ -23,4 +23,4 @@ python-multipart==0.0.9      # Form data handling
 # Utility
 pydantic<2.0.0              # Data validation
 httpx==0.27.0                # Async HTTP client
- 
+
