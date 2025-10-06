@@ -26,6 +26,7 @@ from app.auth.routes import router as auth_router
 from app.tenders.routes import router as tenders_router
 from app.company_profiles.routes import router as company_profiles_router
 from app.ai_summarization.routes import router as ai_summarization_router
+from app.readiness.routes import router as readiness_router
 
 app.include_router(tenders_router)
 app.include_router(auth_router,  tags=["Auth"])
@@ -33,3 +34,6 @@ app.include_router(ai_routes.router)
 app.include_router(company_profiles_router)
 app.include_router(tenders_router, prefix="/tenders", tags=["Tenders"])
 app.include_router(auth_router,  prefix="/auth", tags=["Authentication"])
+app.include_router(company_profiles_router, prefix="/company_profiles", tags=["Company Profiles"])
+app.include_router(ai_summarization_router, prefix="/ai", tags=["AI Summarization"])
+app.include_router(readiness_router, prefix="/readiness", tags=["Readiness Scoring"])

@@ -3,7 +3,7 @@ uvicorn[standard]==0.29.0
 
 # Database
 sqlalchemy==2.0.30
-#asyncpg==0.29.0              # PostgreSQL driver
+asyncpg==0.29.0              # PostgreSQL driver
 psycopg2-binary==2.9.9       # Optional if you use psycopg2
 
 # AI & NLP
