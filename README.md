@@ -5,7 +5,7 @@
 ## Epic Overview
 This sprint focuses on implementing and integrating the **Tender Readiness Scoring** feature — enabling teams to assess their suitability for specific tenders based on their company profiles and AI summarization data.
 
-The sprint includes backend model design, API development, frontend integration, and optional AI-based explanations.
+The sprint includes backend model design, API development, frontend integration.
 
 ---
 
@@ -102,23 +102,7 @@ The sprint includes backend model design, API development, frontend integration,
 | Frontend | Readiness modal & history page | Monthati |
 | AI | Explanations  | Lentswe |
 | QA | Testing report & validation | Entire Team |
-
----
-
-## References
-- `/docs/api-contract.md`
-- `/backend/app/readiness/`
-- `/frontend/src/components/Tender/`
-- `/frontend/src/pages/ReadinessHistory.jsx`
-
----
-
-### Notes
-- Follow Clean Architecture (service, repository, API layers separated).  
-- Use JWT for all protected endpoints.  
-- Ensure compatibility with the SaaS plan restrictions (Free, Basic, Pro).  
-- PRs must be reviewed before merging into `main`.
-
+|Documentation | Document | Nthabeleng Moleko |
 ---
 
 **Prepared by:** Nthabeleng Moleko 
