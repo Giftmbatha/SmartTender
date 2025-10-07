@@ -98,9 +98,9 @@ The sprint includes backend model design, API development, frontend integration.
 ## Sprint Deliverables Summary
 | Area | Deliverable | Owner |
 |------|--------------|--------|
-| Backend | Scoring model, DB schema, service, endpoints | Gift & Refiloe |
-| Frontend | Readiness modal & history page | Monthati |
-| AI | Explanations  | Lentswe |
+| Backend | Scoring model, DB schema, service, endpoints | Gift  Mbatha & Refiloe Baloyi|
+| Frontend | Readiness modal & history page | Monthati Gaosekwe |
+| AI | Explanations  | Lentswe Kunene|
 | QA | Testing report & validation | Entire Team |
 |Documentation | Document | Nthabeleng Moleko |
 ---
