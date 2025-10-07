@@ -1,74 +1,128 @@
 # SmartTender
 
-## Code Review Feedback – Epic 3
+#Week 6 (Sprint 5) — Readiness Scoring Epic
 
-**Epic Duration**: Week 4  
-**Epic Goal**: Company Profile Management (Create, Update, Validate, Store)  
-**Team Size**: 5 members
----
+## Epic Overview
+This sprint focuses on implementing and integrating the **Tender Readiness Scoring** feature — enabling teams to assess their suitability for specific tenders based on their company profiles and AI summarization data.
 
-### Team Performance
-| Team Member | Tasks Assigned | Tasks Completed | Completion % |
-|-------------|----------------|-----------------|--------------|
-| Gift Mbatha | 8 | 8 | 100% |
-| Nthabeleng Moleko | 6 | 6 | 100% |
-| Lentswe Kunene | 6 | 6 | 100% |
-| Monthati Gaosekwe | 5 | 5 | 100% |
-| Refiloe Baloyi | 3 | 3 | 100% |
-
----
-## Epic Achievements
-
-**This review covers the Epic 3 tasks:**  
-- Backend: `/api/companies` endpoint group, SQL database integration, Pydantic models, validation, plan restrictions.  
-- Frontend: Company profile form, update UI, API integration.  
-⦁ Overall, great progress on managing company profiles with proper validation and persistence. Below are detailed notes.
-
-**Primary Goals met:**
-- Created `/api/companies` endpoints:  
-  - `POST /companies` → Create new company profile  
-  - `GET /companies/{id}` → Retrieve profile by ID  
-  - `PUT /companies/{id}` → Update profile  
-  - `DELETE /companies/{id}` → Delete profile  
-- Defined Pydantic models for requests and responses, enforcing field types and optional fields.  
-- Updated SQL database schema with a `companies` table and linked `user/team` via foreign key.  
-- Implemented plan restrictions (Free plan: only 1 company profile).  
-- Frontend form allows users to create and update profiles with validations.  
+The sprint includes backend model design, API development, frontend integration, and optional AI-based explanations.
 
 ---
 
-**What we can improve:**
+## Sprint Timeline & Assignments
 
-**⦁ Backend**
-1. Validation
-   - Ensure strict validation of registration numbers, email format, and phone number patterns.  
-2. Error Handling
-   - Return friendly JSON error responses when validation fails or a profile is not found:  
-     ```json
-     { "error": "Company profile not found", "status": 404 }
-     ```
-3. Testing
-   - Add unit tests for create, update, delete, and get operations.  
-4. Plan Restrictions
-   - Enforce restrictions in middleware or service layer to avoid bypass.  
+### **Backend: Define Scoring Model & Database Setup**
+**Assignees:** Gift Mbatha & Refiloe Baloyi  
+**Objectives:**
+- Design PostgreSQL tables for readiness scores, matched criteria, and recommendations.  
+- Define relationships between `CompanyProfile`, `Tender`, and `ReadinessScore` models.  
+- Prepare SQLAlchemy models and migrations.
 
-**⦁ Frontend**
-1. Error States
-   - Display clear messages when validation fails or API returns an error.  
-2. Loading State
-   - Add spinner or skeleton loader when fetching or submitting company data.  
-3. Form Validation
-   - Disable "Save Profile" until all required fields are entered.  
-
-**⦁ Next Steps:**
-- Refactor company profile logic into a dedicated service layer.  
-- Implement logging for backend operations.  
-- Add more frontend features like viewing all profiles for paid plans.  
-- Update API documentation (docs/api-contract.md) with request/response examples for company endpoints.  
+**Deliverables:**
+- `readiness/models.py`
+- DB migration script
+- Documentation of scoring model schema in `/docs/api-contract.md`
 
 ---
 
-**Review Decision**
-- Changes required before merge  
-- Looks good, minor fixes  
-- Approved for merge after improvements
+### **Backend: Implement Scoring Service & Endpoints**
+**Assignee:** Gift Mbatha  
+**Objectives:**
+- Implement business logic in `readiness/service.py`:
+  - Compare tender requirements with company profile attributes.
+  - Calculate a readiness score (0–100).
+  - Generate a short recommendation summary.
+- Create FastAPI endpoints in `readiness/routes.py`:
+  - `POST /api/readiness/check`
+  - `GET /api/readiness/history`
+
+**Deliverables:**
+- `readiness/service.py`
+- `readiness/routes.py`
+- Unit tests for readiness logic
+
+---
+
+### **Frontend: Add “Check Readiness” Button & Modal**
+**Assignee:** Monthati Gaosekwe  
+**Objectives:**
+- Add a “Check Readiness” button on each tender card.  
+- On click, open a modal that calls the readiness API.  
+- Display score, matched/unmatched criteria, and recommendation message.
+
+**Deliverables:**
+- `frontend/src/components/Tender/ReadinessModal.jsx`
+- `frontend/src/pages/Dashboard.jsx` (button integration)
+
+---
+
+### **Frontend: Build Readiness History Page**
+**Assignee:** Monthati Gaosekwe  
+**Objectives:**
+- Create a page to display historical readiness checks.  
+- Fetch data from `GET /api/readiness/history`.  
+- Sort results by highest match score.
+
+**Deliverables:**
+- `frontend/src/pages/ReadinessHistory.jsx`
+- `readinessService.js` 
+
+---
+
+### **AI Integration: Natural-Language Explanations (Optional)**
+**Assignee:** Lentswe Kunene  
+**Objectives:**
+- Enhance readiness scoring with natural-language reasoning using an AI model.  
+- Integrate HuggingFace transformer or local LLM to produce an explanation field in the readiness result.  
+
+**Deliverables:**
+- `ai_explanations/service.py`
+- Integrated AI output into readiness API response
+
+---
+
+### **Testing & Quality Assurance**
+**Team-wide effort**  
+**Objectives:**
+- Run unit and integration tests across backend and frontend.  
+- Verify scoring accuracy, response formatting, and frontend data rendering.  
+- Perform manual API tests using Postman.  
+
+**Deliverables:**
+- `tests/test_readiness_service.py`
+- `tests/test_readiness_routes.py`
+- QA checklist report in `/docs/testing-report.md`
+
+---
+
+## Sprint Deliverables Summary
+| Area | Deliverable | Owner |
+|------|--------------|--------|
+| Backend | Scoring model, DB schema, service, endpoints | Gift & Refiloe |
+| Frontend | Readiness modal & history page | Monthati |
+| AI | Explanations  | Lentswe |
+| QA | Testing report & validation | Entire Team |
+
+---
+
+## References
+- `/docs/api-contract.md`
+- `/backend/app/readiness/`
+- `/frontend/src/components/Tender/`
+- `/frontend/src/pages/ReadinessHistory.jsx`
+
+---
+
+### Notes
+- Follow Clean Architecture (service, repository, API layers separated).  
+- Use JWT for all protected endpoints.  
+- Ensure compatibility with the SaaS plan restrictions (Free, Basic, Pro).  
+- PRs must be reviewed before merging into `main`.
+
+---
+
+**Prepared by:** Nthabeleng Moleko 
+**Module:** Software Engineering & Design  
+**Project:** SmartTender SaaS Web Application  
+**Sprint:** 5 – Readiness Scoring Epic
+
