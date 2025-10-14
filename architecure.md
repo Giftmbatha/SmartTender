@@ -6,7 +6,7 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 
 **Visual Architecture Diagram**
 
-![SmartTender Architecture](docs/SmartTender Architecture.png)
+![SmartTender Architecture](docs/SmartTenderArchitecture.png)
 
 **Architecture Layers Explained**
 
