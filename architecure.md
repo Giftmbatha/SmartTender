@@ -6,20 +6,15 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 
 **Visual Architecture Diagram**
 
-graph TD
-    A[External Interfaces: FastAPI, PostgreSQL, Redis]
-    B[Interface Adapters: Data Access Layer & Controllers/Routers]
-    C[Business Rules: Service Layer / Use Cases]
-    D[Enterprise Business Rules: Entities/Models]
+┌──────────────────────┐
+│     API Layer        │  ← FastAPI routers/controllers
+├──────────────────────┤
+│  Service Layer       │  ← Business logic, scoring, plan restrictions
+├──────────────────────┤
+│  Data Access Layer   │  ← PostgreSQL, Redis
+└──────────────────────┘
+<img width="554" height="158" alt="image" src="https://github.com/user-attachments/assets/0d315f5c-9574-4d29-9acd-f1914f886c9e" />
 
-    A -- depends on --> B
-    B -- depends on --> C
-    C -- depends on --> D
-
-    style A fill:#f9f,stroke:#333
-    style B fill:#ccf,stroke:#333
-    style C fill:#9c9,stroke:#333
-    style D fill:#ff9,stroke:#333
 
 **Architecture Layers Explained**
 
