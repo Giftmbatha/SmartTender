@@ -13,7 +13,6 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 ├──────────────────────┤
 │  Data Access Layer   │  ← PostgreSQL, Redis
 └──────────────────────┘
-<img width="554" height="158" alt="image" src="https://github.com/user-attachments/assets/0d315f5c-9574-4d29-9acd-f1914f886c9e" />
 
 
 **Architecture Layers Explained**
