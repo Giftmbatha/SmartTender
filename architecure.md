@@ -6,13 +6,17 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 
 **Visual Architecture Diagram**
 
-┌──────────────────────┐
-│     API Layer        │  ← FastAPI routers/controllers
-├──────────────────────┤
-│  Service Layer       │  ← Business logic, scoring, plan restrictions
-├──────────────────────┤
-│  Data Access Layer   │  ← PostgreSQL, Redis
-└──────────────────────┘
+graph TD
+  A[API Layer<br>FastAPI Routers/Controllers] --> B[Service Layer<br>Business Logic & AI Scoring]
+  B --> C[Data Access Layer<br>SQLAlchemy Repositories]
+  C --> D1[(PostgreSQL 🐘)]
+  C --> D2[(Redis ⚡)]
+
+  style A fill:#cce5ff,stroke:#004085,stroke-width:2px
+  style B fill:#d4edda,stroke:#155724,stroke-width:2px
+  style C fill:#fff3cd,stroke:#856404,stroke-width:2px
+  style D1 fill:#f8d7da,stroke:#721c24,stroke-width:2px
+  style D2 fill:#f8d7da,stroke:#721c24,stroke-width:2px
 
 
 **Architecture Layers Explained**
