@@ -6,6 +6,8 @@ This system is designed using a **Modular Monolithic Architecture** guided by **
 
 **Visual Architecture Diagram**
 
+![Architecture](docs/SmartTender Architecture.png)
+
 graph TD
   A[API Layer<br>FastAPI Routers/Controllers] --> B[Service Layer<br>Business Logic & AI Scoring]
   B --> C[Data Access Layer<br>SQLAlchemy Repositories]
